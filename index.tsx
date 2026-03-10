@@ -58,7 +58,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
 
 export const TRANSLATIONS = {
   'zh-TW': {
-    appTitle: "Calendering Inventory v3",
+    appTitle: "Cutting Inventory v3",
     user: "人員 (User)",
     cycleCount: "盤點 (No.)",
     count1: "1️⃣ 盤點 1 (H欄)",
@@ -112,7 +112,7 @@ export const TRANSLATIONS = {
     scanConfirm: "(再次點擊畫面確認)"
   },
   'en': {
-    appTitle: "Calendering Inventory v3",
+    appTitle: "Cutting Inventory v3",
     user: "User",
     cycleCount: "Cycle Count",
     count1: "1️⃣ Count 1 (Col H)",

@@ -2,8 +2,8 @@
 import { AppSettings, Language } from './types.ts';
 
 export const SYSTEM_CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbxN5It2eczVQ1oL0uE9cjEC8sqKITOMKJdl9_jMx7Z7taFNdEMb5LdyjErhARNHno4JXA/exec",
-  SHEET_URL: "https://docs.google.com/spreadsheets/d/1_85YEZSQFARb7HgA2hfNOj4bxoptdjqQfAqq3Y0uY9o/edit"
+  API_URL: "https://script.google.com/macros/s/AKfycbyBQS-h5vbPZiF-sy8pcWgjpt-LQ9fXoBhiKK30cojnzmKUsvL4YPYHy6J5VFPSBpkh-w/exec",
+  SHEET_URL: "https://docs.google.com/spreadsheets/d/1LeGsWB0HTLrY-8kb7rxvNh21Qj2-P9AJYhWz2BlfXo0/edit?gid=0#gid=0"
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -15,7 +15,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
 
 export const TRANSLATIONS = {
   'zh-TW': {
-    appTitle: "Calendering Inventory v3",
+    appTitle: "Cutting Inventory v3",
     user: "人員 (User)",
     cycleCount: "盤點 (No.)",
     count1: "1️⃣ 盤點 1 (H欄)",
@@ -77,7 +77,7 @@ export const TRANSLATIONS = {
     scanHint: "👀 掃描中... 請對準目標"
   },
   'en': {
-    appTitle: "Calendering Inventory v3",
+    appTitle: "Cutting Inventory v3",
     user: "User",
     cycleCount: "Cycle Count",
     count1: "1️⃣ Count 1 (Col H)",
