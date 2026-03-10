@@ -79,7 +79,7 @@ export default defineConfig(({ mode }) => {
             ]
           },
           manifest: {
-            name: 'Extrusion Inventory v3',
+            name: 'Calendering Inventory v3',
             short_name: 'Inventory',
             description: 'Offline capable inventory app',
             theme_color: '#222222',
