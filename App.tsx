@@ -213,6 +213,9 @@ const App: React.FC = () => {
   };
 
   const handleUpload = async () => {
+    if (!navigator.onLine) {
+      return alert("No internet connection. Please try again when online.");
+    }
     if (Object.keys(inventory).length === 0) return alert(t.noData);
     if (!confirm(t.uploadConfirm)) return;
     setIsLoading(true);

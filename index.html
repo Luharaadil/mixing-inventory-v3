@@ -4,8 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Mixing Inventory v2</title>
-    <!-- Fix Favicon 404 -->
-    <link rel="icon" href="data:;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzIyMiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZmlsbD0iI2ZmZiI+📦PC90ZXh0Pjwvc3ZnPg==">
     
     <!-- CSS Framework -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,13 +12,6 @@
     <!-- External Libraries -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
-    
-    <!-- React UMD (Replaces importmap for Babel Standalone compatibility) -->
-    <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-    
-    <!-- Babel for in-browser compilation -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
       /* Custom scrollbar for dark theme */
@@ -139,38 +131,10 @@
       .guide-box.ready .guide-text { color: #00ff00; }
       .guide-box.paused .guide-text { color: #007bff; }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "path": "https://esm.sh/path@^0.12.7",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
-    "vite": "https://esm.sh/vite@^7.3.1"
-  }
-}
-</script>
 <link rel="stylesheet" href="./index.css">
 </head>
 <body>
     <div id="root"></div>
-
-    <!-- 
-      Fix for Babel "exports is not defined" error in browser environment.
-      Includes a minimal require shim for React imports.
-    -->
-    <script>
-      var exports = {};
-      var require = function(m) {
-        if (m === 'react') return window.React;
-        if (m === 'react-dom/client') return window.ReactDOM;
-        return window[m] || {};
-      };
-    </script>
-
-    <!-- Updated Babel script tag with correct presets and type -->
-    <script type="text/babel" data-presets="env,react,typescript" src="./index.tsx"></script>
-<script type="module" src="./index.tsx"></script>
+    <script type="module" src="./index.tsx"></script>
 </body>
 </html>

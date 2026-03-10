@@ -1,6 +1,12 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
+import { registerSW } from 'virtual:pwa-register';
+
+// Register service worker for PWA
+if ('serviceWorker' in navigator) {
+  registerSW({ immediate: true });
+}
 
 // ==========================================
 // 1. TYPES & CONSTANTS
@@ -701,7 +707,44 @@ const App: React.FC = () => {
         <button onClick={() => {}} className="h-12 bg-green-600 rounded-lg font-bold opacity-50 cursor-not-allowed">📤 {t.export}</button>
         <button onClick={() => window.open(SYSTEM_CONFIG.SHEET_URL)} className="h-12 bg-purple-700 rounded-lg font-bold">📂 {t.openSheet}</button>
       </div>
-      <button onClick={handleUpload} className="w-full bg-blue-600 h-16 rounded-lg font-bold text-xl mb-4 shadow-xl">☁️ {t.upload}</button>
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <button onClick={handleUpload} className="bg-blue-600 h-16 rounded-lg font-bold text-xl shadow-xl">☁️ {t.upload}</button>
+        <button onClick={async () => {
+          const token = prompt("Enter GitHub Personal Access Token to sync data as Gist:");
+          if (!token) return;
+          setIsLoading(true);
+          try {
+            const res = await fetch('https://api.github.com/gists', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token.trim()}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                description: `Inventory Backup - ${user}`,
+                public: false,
+                files: {
+                  [`inventory_${user}_${new Date().toISOString().slice(0,10)}.json`]: {
+                    content: JSON.stringify(inventory, null, 2) || "{}"
+                  }
+                }
+              })
+            });
+            if (res.ok) {
+              const data = await res.json();
+              alert(`✅ Synced to GitHub Gist successfully!\nURL: ${data.html_url}`);
+            } else {
+              const errData = await res.json().catch(() => ({}));
+              alert(`❌ GitHub Sync Failed: ${res.status} ${res.statusText}\n${errData.message || ''}`);
+            }
+          } catch (e) {
+            alert(`❌ GitHub Sync Error: ${e}`);
+          } finally {
+            setIsLoading(false);
+          }
+        }} className="bg-gray-800 h-16 rounded-lg font-bold text-xl shadow-xl border border-gray-600">🐙 Sync GitHub</button>
+      </div>
       <InventoryTable inventory={inventory} settings={settings} onEdit={handleSaveItem} onDelete={c=>{if(confirm(t.deleteConfirm+c)){const n={...inventory}; delete n[c]; setInventory(n); localStorage.setItem(`inventory_${user}`,JSON.stringify(n));}}} onUpdateField={handleUpdateField} checkIndex={checkIndex} language={language} />
       
       <div className="mt-4 mb-8">
