@@ -45,8 +45,8 @@ declare global {
 }
 
 export const SYSTEM_CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbxIVUaAXpAWdEvnKiARhOFExB57PXgBANt9iEG6AdwcGT3H_PE1A8fTN8JgH-Dr1nXS4Q/exec",
-  SHEET_URL: "https://docs.google.com/spreadsheets/d/1T4tveDcNoiYCjDr6BABeKPfRBlWPUGl_8PRpPrwuiE8/edit?gid=0#gid=0"
+  API_URL: "https://script.google.com/macros/s/AKfycbyBQS-h5vbPZiF-sy8pcWgjpt-LQ9fXoBhiKK30cojnzmKUsvL4YPYHy6J5VFPSBpkh-w/exec",
+  SHEET_URL: "https://docs.google.com/spreadsheets/d/1LeGsWB0HTLrY-8kb7rxvNh21Qj2-P9AJYhWz2BlfXo0/edit?gid=0#gid=0"
 };
 
 export const DEFAULT_SETTINGS: AppSettings = {
