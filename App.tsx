@@ -167,6 +167,51 @@ const App: React.FC = () => {
       localStorage.setItem(`inventory_${user}`, JSON.stringify(newInventory));
   };
 
+  const handleExportExcel = () => {
+    if (Object.keys(inventory).length === 0) return alert(t.noData);
+    
+    const escapeCSV = (val: any) => {
+      if (val === null || val === undefined) return '""';
+      const str = String(val);
+      if (str.includes('"') || str.includes(',') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return `"${str}"`;
+    };
+
+    const headers = [
+      t.tableCode, t.tableName, t.tableLoc, t.tableQty, 
+      t.count1, t.count2, t.count3, t.count4, t.count5, "Scan Time"
+    ];
+    
+    const rows = Object.entries(inventory).map(([code, item]) => [
+      escapeCSV(code),
+      escapeCSV(item.name),
+      escapeCSV(item.location),
+      item.qty || 0,
+      item.qty1 || 0,
+      item.qty2 || 0,
+      item.qty3 || 0,
+      item.qty4 || 0,
+      item.qty5 || 0,
+      escapeCSV(item.scanTime)
+    ]);
+    
+    const csvContent = [
+      headers.map(escapeCSV).join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+    
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Inventory_${user}_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleUpload = async () => {
     if (Object.keys(inventory).length === 0) return alert(t.noData);
     if (!confirm(t.uploadConfirm)) return;
@@ -219,6 +264,13 @@ const App: React.FC = () => {
       <div className="grid grid-cols-2 gap-3 mb-3"><button onClick={() => {}} className="h-12 bg-green-600 rounded-lg font-bold opacity-50 cursor-not-allowed">📤 {t.export}</button><button onClick={() => window.open(SYSTEM_CONFIG.SHEET_URL)} className="h-12 bg-[#6610f2] rounded-lg font-bold">📂 {t.openSheet}</button></div>
       <button onClick={handleUpload} className="w-full bg-[#007bff] h-16 rounded-lg font-bold text-xl mb-4 shadow-xl">☁️ {t.upload}</button>
       <InventoryTable inventory={inventory} settings={settings} onEdit={handleSaveItem} onDelete={c=>{if(confirm(t.deleteConfirm+c)){const n={...inventory};delete n[c];setInventory(n);localStorage.setItem(`inventory_${user}`,JSON.stringify(n))}}} onUpdateField={handleUpdateQty} checkIndex={checkIndex} language={language} />
+      
+      <div className="mt-4 mb-8">
+        <button onClick={handleExportExcel} className="w-full bg-green-600 h-16 rounded-lg font-bold text-xl shadow-xl text-white">
+          📥 {t.export}
+        </button>
+      </div>
+
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} settings={settings} onSave={s=>{setSettings(s);localStorage.setItem('appSettings',JSON.stringify(s));setIsSettingsOpen(false)}} language={language} onLanguageChange={changeLanguage} />
     </div>
   );
