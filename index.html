@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Mixing Inventory v2</title>
+    <!-- Fix Favicon 404 -->
+    <link rel="icon" href="data:;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==">
+    
+    <!-- CSS Framework -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- External Libraries -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
+    
+    <!-- React UMD (Replaces importmap for Babel Standalone compatibility) -->
+    <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for in-browser compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+      /* Custom scrollbar for dark theme */
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: #333; }
+      ::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: #777; }
+      body { background-color: #222; color: #fff; touch-action: manipulation; }
+      button { touch-action: manipulation; }
+      
+      /* Viewport Area */
+      .viewport {
+        position: relative;
+        width: 100%;
+        height: 50vh;
+        background: black;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 10px;
+        border: 1px solid #444;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        z-index: 1;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        touch-action: pan-y;
+      }
+
+      /* Mode Switch Buttons */
+      .mode-switch { display: flex; gap: 8px; margin-bottom: 10px; }
+      .mode-btn {
+        flex: 1; padding: 12px 8px; border: none; border-radius: 12px;
+        background: #333; color: #aaa; font-weight: bold; cursor: pointer; transition: 0.3s;
+        display: flex; flex-direction: column; align-items: center; line-height: 1.2; font-size: 1rem;
+      }
+      .mode-btn small { font-size: 0.75rem; font-weight: normal; opacity: 0.8; margin-top: 2px; }
+      .mode-btn.active { background: #007bff; color: white; box-shadow: 0 0 10px rgba(0,123,255,0.5); }
+
+      /* Barcode UI */
+      #reader { width: 100%; height: 100%; border-radius: 8px; background: #000; }
+      #reader video { object-fit: cover; width: 100%; height: 100%; }
+      #qr-canvas {
+        position: absolute; top: 0; left: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 20;
+      }
+      #center-guide {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 250px; height: 250px; 
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        z-index: 15;
+        pointer-events: none;
+        box-shadow: 0 0 0 4000px rgba(0,0,0,0.5);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 20px;
+        display: none;
+      }
+      .guide-success {
+        border-color: #00ff00 !important;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.8), 0 0 0 4000px rgba(0,0,0,0.5) !important;
+        background-color: rgba(0, 255, 0, 0.1);
+      }
+      .camera-hint {
+        position: absolute; bottom: 20px; left: 0; right: 0;
+        display: flex; justify-content: center; align-items: center;
+        color: white; font-size: 1.1rem; font-weight: bold;
+        text-align: center; z-index: 25; pointer-events: none;
+        white-space: pre-line;
+        text-shadow: 1px 1px 4px black;
+        display: none;
+      }
+
+      /* OCR UI */
+      #ocr-video { width: 100%; height: 100%; object-fit: cover; display: none; }
+      .scan-guide-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        pointer-events: none; display: none; z-index: 10;
+      }
+      .guide-box {
+        position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%; height: 4.5%;
+        border: 2px solid #ff4d4d;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+        border-radius: 4px; transition: 0.3s all;
+        display: flex; justify-content: center; align-items: center;
+      }
+      .guide-box.ready { border-color: #00ff00; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8); }
+      .guide-box.paused { border-color: #007bff; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6); }
+      
+      .guide-line {
+        position: absolute;
+        width: 100%; height: 2px;
+        background-color: rgba(255, 77, 77, 0.5);
+        pointer-events: none; transition: 0.3s all; box-shadow: 0 0 2px rgba(255,0,0,0.5);
+        display: none;
+      }
+      
+      .guide-text {
+        position: absolute; 
+        top: 50%; left: 50%; 
+        transform: translate(-50%, -50%);
+        width: 100%;
+        text-align: center; 
+        color: #ff4d4d; 
+        font-size: 1.1rem; 
+        font-weight: bold;
+        text-shadow: 1px 1px 2px black, -1px -1px 2px black; 
+        transition: 0.3s all;
+        padding: 0 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .guide-box.ready .guide-text { color: #00ff00; }
+      .guide-box.paused .guide-text { color: #007bff; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "path": "https://esm.sh/path@^0.12.7",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "vite": "https://esm.sh/vite@^7.3.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- 
+      Fix for Babel "exports is not defined" error in browser environment.
+      Includes a minimal require shim for React imports.
+    -->
+    <script>
+      var exports = {};
+      var require = function(m) {
+        if (m === 'react') return window.React;
+        if (m === 'react-dom/client') return window.ReactDOM;
+        return window[m] || {};
+      };
+    </script>
+
+    <!-- Updated Babel script tag with correct presets and type -->
+    <script type="text/babel" data-presets="env,react,typescript" src="./index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
